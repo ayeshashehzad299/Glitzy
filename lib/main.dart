@@ -1,4 +1,4 @@
-import 'package:chatt_app/screens/onboarding/onboarding_screen2.dart';
+import 'package:chatt_app/screens/onboarding/onboarding_screen3.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Chat App',
       debugShowCheckedModeBanner: false,
-      home: OnboardingScreen2(),
+      home: OnboardingScreen3(),
     );
   }
 }
