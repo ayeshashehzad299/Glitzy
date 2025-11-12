@@ -1,3 +1,4 @@
+import 'package:chatt_app/screens/auth/login_screen.dart';
 import 'package:chatt_app/screens/auth/signup_screen.dart';
 import 'package:chatt_app/widgets/custom_navigation_button.dart';
 import 'package:flutter/material.dart';
@@ -51,13 +52,37 @@ class _OnboardingScreen3State extends State<OnboardingScreen3> {
                   text: 'Start Sparkling',
                   destination: SignupScreen(),
                 ),
-                SizedBox(height: 20),
-                Text(
-                  "Already Glitzy?",
-                  style: GoogleFonts.chilanka(
-                    color: hotPink,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
+                SizedBox(height: 30),
+                RichText(
+                  text: TextSpan(
+                    style: TextStyle(color: Colors.black, fontSize: 16),
+                    children: [
+                      TextSpan(
+                        text: "Already have an account? ",
+                        style: GoogleFonts.chilanka(
+                          color: hotPink,
+                          fontSize: 16,
+                        ),
+                      ),
+                      WidgetSpan(
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => LoginScreen()),
+                            );
+                          },
+                          child: Text(
+                            "Log in",
+                            style: GoogleFonts.chilanka(
+                              color: Colors.pink,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],

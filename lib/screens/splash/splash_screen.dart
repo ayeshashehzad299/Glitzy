@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:chatt_app/screens/onboarding/onboarding_screen1.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -12,14 +15,19 @@ class _SplashScreenState extends State<SplashScreen> {
   static const Color blushPink = Color.fromARGB(255, 253, 240, 243);
   static const Color textPurple = Color(0xFF5C54A7);
 
-  // @override
-  // void initState() {
-  //   super.initState();fl
-  //   Timer(const Duration(seconds: 3), () {
-  //     Navigator.pushReplacement(context,
-  //         MaterialPageRoute(builder: (context) => const OnboardingScreen1()));
-  //   });
-  // }
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Timer(const Duration(seconds: 3), () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const OnboardingScreen1()),
+        );
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

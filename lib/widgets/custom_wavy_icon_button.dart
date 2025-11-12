@@ -21,7 +21,7 @@ class WavyIconButton extends StatelessWidget {
     return InkWell(
       onTap: onPressed,
       borderRadius: BorderRadius.circular(size / 2),
-      child: Container(
+      child: SizedBox(
         width: size,
         height: size,
         child: Stack(
