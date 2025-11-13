@@ -13,7 +13,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   static const Color blushPink = Color.fromARGB(255, 253, 240, 243);
-  static const Color textPurple = Color(0xFF5C54A7);
+  static const Color textPurple = Color(0xFF8E2A6C);
 
   @override
   void initState() {

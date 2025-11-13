@@ -14,7 +14,7 @@ class OnboardingScreen2 extends StatefulWidget {
 class _OnboardingScreen2State extends State<OnboardingScreen2> {
   static const Color blushPink = Color(0xFFFFF4F7);
   static const Color hotPink = Color(0xFFFF69B4);
-  static const Color darkText = Color(0xFF5C54A7);
+  static const Color darkText = Color(0xFF8E2A6C);
 
   @override
   Widget build(BuildContext context) {
