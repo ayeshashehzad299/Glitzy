@@ -1,7 +1,11 @@
 // import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:firebase_core/firebase_core.dart';
+import 'package:chatt_app/screens/auth/login_screen.dart';
 import 'package:chatt_app/widgets/auth_button.dart';
+import 'package:chatt_app/widgets/auth_label.dart';
+import 'package:chatt_app/widgets/auth_primary_button.dart';
 import 'package:chatt_app/widgets/auth_text_field.dart';
+import 'package:chatt_app/widgets/text_navigation_button.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -42,7 +46,7 @@ class _SignupScreenState extends State<SignupScreen> {
         child: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 17),
               child: Form(
                 // key: _f,
                 child: Column(
@@ -72,13 +76,58 @@ class _SignupScreenState extends State<SignupScreen> {
 
                     Text('or', style: GoogleFonts.quicksand(fontSize: 16)),
 
-                    SizedBox(height: 10),
+                    SizedBox(height: 17),
 
+                    AuthLabel(text: 'UserName'),
+                    SizedBox(height: 5),
                     AuthTextField(
                       hintText: 'UserName',
                       controller: userNameController,
-                      isPassword: false,
+                    ),
+
+                    SizedBox(height: 29),
+                    AuthLabel(text: 'Email'),
+                    SizedBox(height: 5),
+                    AuthTextField(
+                      hintText: 'Email',
+                      controller: emailController,
                       keyboardType: TextInputType.emailAddress,
+                    ),
+
+                    SizedBox(height: 29),
+                    AuthLabel(text: 'Password'),
+                    SizedBox(height: 5),
+                    AuthTextField(
+                      hintText: 'Password',
+                      controller: passwordController,
+                      isPassword: true,
+                    ),
+
+                    SizedBox(height: 3),
+
+                    Text(
+                      'Password must at least contain 6 characters',
+                      style: GoogleFonts.quicksand(
+                        fontSize: 13,
+                        color: darkText,
+                      ),
+                    ),
+
+                    SizedBox(height: 40),
+
+                    AuthPrimaryButton(label: 'Sign Up', onTap: () {}),
+
+                    TextNavigationButton(
+                      leadingText: 'Already Have an Account?',
+                      actionText: 'Log In',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const LoginScreen(),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
