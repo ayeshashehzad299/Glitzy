@@ -1,5 +1,6 @@
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:chatt_app/screens/auth/login_screen.dart';
 import 'package:chatt_app/widgets/auth_button.dart';
 import 'package:chatt_app/widgets/auth_label.dart';
@@ -26,16 +27,45 @@ class _SignupScreenState extends State<SignupScreen> {
   final passwordController = TextEditingController();
   bool isLoading = false;
 
-  // final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
-  // final _auth = FirebaseAuth.instance;
-  // // final _firestore = FirebaseFirestore.instance;
+  final _auth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
 
-  // Future<void> signUpUser() async {
-  //   if (!_formKey.currentState!.validate()) return;
+  Future<void> signUpUser() async {
+    if (!_formKey.currentState!.validate()) return;
 
-  //   setState(() => isLoading = true);
-  // }
+    setState(() => isLoading = true);
+
+    try {
+      UserCredential user = await _auth.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
+      await _firestore.collection('users').doc(user.user!.uid).set({
+        'username': userNameController.text.trim(),
+        'email': emailController.text.trim(),
+        'uid': user.user!.uid,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Account Created Successfully 🎉")),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message ?? 'Signup failed')));
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +78,7 @@ class _SignupScreenState extends State<SignupScreen> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 17),
               child: Form(
-                // key: _f,
+                key: _formKey,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -115,7 +145,14 @@ class _SignupScreenState extends State<SignupScreen> {
 
                     SizedBox(height: 40),
 
-                    AuthPrimaryButton(label: 'Sign Up', onTap: () {}),
+                    AuthPrimaryButton(
+                      label: isLoading ? 'Loading...' : 'Sign Up',
+                      onTap: isLoading
+                          ? () {}
+                          : () {
+                              signUpUser();
+                            },
+                    ),
 
                     TextNavigationButton(
                       leadingText: 'Already Have an Account?',
