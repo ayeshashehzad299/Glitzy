@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:chatt_app/screens/auth/login_screen.dart';
 import 'package:chatt_app/widgets/auth_button.dart';
 import 'package:chatt_app/widgets/auth_label.dart';
@@ -9,6 +8,7 @@ import 'package:chatt_app/widgets/auth_text_field.dart';
 import 'package:chatt_app/widgets/text_navigation_button.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -31,6 +31,48 @@ class _SignupScreenState extends State<SignupScreen> {
 
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+
+  Future<UserCredential?> signInWithGoogle() async {
+    try {
+      // Trigger Google Sign-In popup
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+      // If user cancels
+      if (googleUser == null) return null;
+
+      // Get authentication tokens
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      // Create Firebase credential
+      final OAuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Sign in to Firebase with Google credentials
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithCredential(credential);
+
+      // Save to Firestore if first time
+      if (userCredential.additionalUserInfo!.isNewUser) {
+        await _firestore.collection('users').doc(userCredential.user!.uid).set({
+          'username': googleUser.displayName ?? "",
+          'email': googleUser.email,
+          'uid': userCredential.user!.uid,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      return userCredential;
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Google Sign-In failed: $e")));
+      return null;
+    }
+  }
 
   Future<void> signUpUser() async {
     if (!_formKey.currentState!.validate()) return;
@@ -100,7 +142,12 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     SizedBox(height: 40),
 
-                    AuthButton(label: 'Google'),
+                    AuthButton(
+                      label: 'Google',
+                      onPressed: () async {
+                        await signInWithGoogle();
+                      },
+                    ),
 
                     SizedBox(height: 10),
 
