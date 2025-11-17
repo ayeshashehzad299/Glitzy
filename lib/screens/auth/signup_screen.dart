@@ -35,27 +35,21 @@ class _SignupScreenState extends State<SignupScreen> {
 
   Future<UserCredential?> signInWithGoogle() async {
     try {
-      // Trigger Google Sign-In popup
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
-      // If user cancels
       if (googleUser == null) return null;
 
-      // Get authentication tokens
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
-      // Create Firebase credential
       final OAuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      // Sign in to Firebase with Google credentials
       UserCredential userCredential = await FirebaseAuth.instance
           .signInWithCredential(credential);
 
-      // Save to Firestore if first time
       if (userCredential.additionalUserInfo!.isNewUser) {
         await _firestore.collection('users').doc(userCredential.user!.uid).set({
           'username': googleUser.displayName ?? "",
