@@ -36,23 +36,23 @@ class _SignupScreenState extends State<SignupScreen> {
   Future<UserCredential?> signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-
-      if (googleUser == null) return null;
+      if (googleUser == null) return null; // user cancelled
 
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
-      final OAuthCredential credential = GoogleAuthProvider.credential(
+      final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      UserCredential userCredential = await FirebaseAuth.instance
-          .signInWithCredential(credential);
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
 
-      if (userCredential.additionalUserInfo!.isNewUser) {
+      if (userCredential.additionalUserInfo?.isNewUser ?? false) {
         await _firestore.collection('users').doc(userCredential.user!.uid).set({
-          'username': googleUser.displayName ?? "",
+          'username': googleUser.displayName ?? '',
           'email': googleUser.email,
           'uid': userCredential.user!.uid,
           'createdAt': FieldValue.serverTimestamp(),
@@ -60,10 +60,11 @@ class _SignupScreenState extends State<SignupScreen> {
       }
 
       return userCredential;
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('Google sign-in error: $e\n$st');
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("Google Sign-In failed: $e")));
+      ).showSnackBar(SnackBar(content: Text('Google Sign-In failed: $e')));
       return null;
     }
   }

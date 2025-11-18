@@ -24,6 +24,25 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isLoading = false;
 
   @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  String? _emailValidator(String? v) {
+    if (v == null || v.isEmpty) return 'Email is required';
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+    return emailRegex.hasMatch(v) ? null : 'Enter a valid email';
+  }
+
+  String? _passwordValidator(String? v) {
+    if (v == null || v.isEmpty) return 'Password is required';
+    if (v.length < 6) return 'Password must be at least 6 characters';
+    return null;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: blushPink,
@@ -34,7 +53,6 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 25),
               child: Form(
-                // key: _f,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -70,6 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     AuthTextField(
                       hintText: 'Email',
                       controller: emailController,
+                      validator: _emailValidator,
                     ),
 
                     SizedBox(height: 29),
@@ -79,6 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     AuthTextField(
                       hintText: 'Password',
                       controller: passwordController,
+                      validator: _passwordValidator,
                     ),
 
                     SizedBox(height: 40),

@@ -12,7 +12,11 @@ class AuthButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onPressed,
+      onTap: () async {
+        if (onPressed != null) {
+          await onPressed!();
+        }
+      },
       child: Container(
         height: 50,
         decoration: BoxDecoration(
@@ -24,12 +28,12 @@ class AuthButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset('assets/images/google.png', height: 22),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Text(
               'Google',
               style: GoogleFonts.quicksand(
                 fontSize: 20,
-                color: Color(0xFF8E2A6C),
+                color: const Color(0xFF8E2A6C),
               ),
             ),
           ],
