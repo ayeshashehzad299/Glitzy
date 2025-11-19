@@ -5,7 +5,6 @@ import 'package:chatt_app/widgets/auth_label.dart';
 import 'package:chatt_app/widgets/auth_primary_button.dart';
 import 'package:chatt_app/widgets/auth_text_field.dart';
 import 'package:chatt_app/widgets/text_navigation_button.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -28,7 +27,6 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isLoading = false;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<void> loginWithEmail() async {
     if (!_formKey.currentState!.validate()) return;
