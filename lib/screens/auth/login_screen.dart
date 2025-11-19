@@ -1,9 +1,12 @@
 import 'package:chatt_app/screens/auth/signup_screen.dart';
+import 'package:chatt_app/screens/home/home_screen.dart';
 import 'package:chatt_app/widgets/auth_button.dart';
 import 'package:chatt_app/widgets/auth_label.dart';
 import 'package:chatt_app/widgets/auth_primary_button.dart';
 import 'package:chatt_app/widgets/auth_text_field.dart';
 import 'package:chatt_app/widgets/text_navigation_button.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -21,7 +24,42 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   bool isLoading = false;
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<void> loginWithEmail() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => isLoading = true);
+
+    try {
+      final userCred = await _auth.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Logged in Sucessfully')));
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => HomeScreen()),
+      );
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message ?? 'Login Failed')));
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Login failed: $e')));
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -53,6 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 25),
               child: Form(
+                key: _formKey,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -103,7 +142,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     SizedBox(height: 40),
 
-                    AuthPrimaryButton(label: 'Login', onTap: () {}),
+                    AuthPrimaryButton(
+                      label: isLoading ? 'Loading...' : 'Login',
+                      onTap: isLoading ? () {} : loginWithEmail,
+                    ),
 
                     TextNavigationButton(
                       leadingText: 'Don’t Have an account?',
