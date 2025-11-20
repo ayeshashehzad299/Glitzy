@@ -1,5 +1,5 @@
 import 'package:chatt_app/firebase_options.dart';
-import 'package:chatt_app/screens/auth/signup_screen.dart';
+import 'package:chatt_app/screens/navbar/bottom_navbar_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Chat App',
       debugShowCheckedModeBanner: false,
-      home: SignupScreen(),
+      home: BottomNavbarScreen(),
     );
   }
 }
