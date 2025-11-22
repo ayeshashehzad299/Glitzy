@@ -1,3 +1,4 @@
+import 'package:chatt_app/widgets/search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,11 +11,28 @@ class FriendsScreen extends StatefulWidget {
 }
 
 class _FriendsScreenState extends State<FriendsScreen> {
+  TextEditingController searchController = TextEditingController();
+
   static const Color blushPink = Color(0xFFFFF4F7);
   static const Color hotPink = Color(0xFFFF69B4);
   static const Color darkText = Color(0xFF8E2A6C);
+
+  final List<Map<String, String>> _allFriends = [
+    {'username': 'Ayesha', 'email': 'ayesha@example.com'},
+    {'username': 'Muneeb', 'email': 'muneeb@example.com'},
+    {'username': 'Dua', 'email': 'dua@example.com'},
+  ];
+
+  String _query = '';
+
   @override
   Widget build(BuildContext context) {
+    final filtered = _allFriends.where((f) {
+      final q = _query.toLowerCase();
+      return f['username']!.toLowerCase().contains(q) ||
+          f['email']!.toLowerCase().contains(q);
+    }).toList();
+
     return Scaffold(
       backgroundColor: blushPink,
       appBar: AppBar(
@@ -51,6 +69,20 @@ class _FriendsScreenState extends State<FriendsScreen> {
               fontSize: 30,
             ),
           ),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 5),
+        child: Column(
+          children: [
+            GlitzySearchBar(
+              controller: searchController,
+              hint: "Search Friends",
+              onChanged: (value) {
+                // search logic
+              },
+            ),
+          ],
         ),
       ),
     );
