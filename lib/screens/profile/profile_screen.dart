@@ -1,3 +1,4 @@
+import 'package:chatt_app/widgets/profile_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -33,6 +34,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               fontSize: 30,
             ),
           ),
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(children: [SizedBox(height: 25), ProfileAvatar()]),
         ),
       ),
     );
