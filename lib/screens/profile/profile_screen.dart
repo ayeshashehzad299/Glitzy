@@ -38,7 +38,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       body: SingleChildScrollView(
         child: Center(
-          child: Column(children: [SizedBox(height: 25), ProfileAvatar()]),
+          child: Column(
+            children: [
+              SizedBox(height: 25),
+              ProfileAvatar(),
+              SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );
