@@ -1,4 +1,5 @@
 import 'package:chatt_app/widgets/profile_avatar.dart';
+import 'package:chatt_app/widgets/profile_textfields.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -10,6 +11,8 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  TextEditingController nameController = TextEditingController();
+
   static const Color blushPink = Color(0xFFFFF4F7);
   static const Color hotPink = Color(0xFFFF69B4);
   static const Color darkText = Color(0xFF8E2A6C);
@@ -40,9 +43,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Center(
           child: Column(
             children: [
-              SizedBox(height: 25),
+              SizedBox(height: 20),
               ProfileAvatar(),
-              SizedBox(height: 16),
+              SizedBox(height: 40),
             ],
           ),
         ),
