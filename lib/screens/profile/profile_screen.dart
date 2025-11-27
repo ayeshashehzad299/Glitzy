@@ -12,6 +12,8 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   TextEditingController nameController = TextEditingController();
+  TextEditingController userNameController = TextEditingController();
+  TextEditingController bioController = TextEditingController();
 
   static const Color blushPink = Color(0xFFFFF4F7);
   static const Color hotPink = Color(0xFFFF69B4);
@@ -46,6 +48,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               SizedBox(height: 20),
               ProfileAvatar(),
               SizedBox(height: 40),
+              ProfileTextfields(hintText: 'Name', controller: nameController),
+              ProfileTextfields(
+                hintText: 'UserName',
+                controller: userNameController,
+              ),
+              ProfileTextfields(
+                hintText: 'Write Your Bio',
+                controller: bioController,
+              ),
             ],
           ),
         ),
