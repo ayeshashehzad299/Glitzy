@@ -1,15 +1,23 @@
+// widgets/profile_avatar.dart
 import 'package:flutter/material.dart';
 
 class ProfileAvatar extends StatelessWidget {
   final String? imageUrl;
   final double size;
   final VoidCallback? onTap;
-  const ProfileAvatar({super.key, this.imageUrl, this.size = 55, this.onTap});
+  final bool loading;
+  const ProfileAvatar({
+    super.key,
+    this.imageUrl,
+    this.size = 55,
+    this.onTap,
+    this.loading = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: loading ? null : onTap,
       child: Stack(
         alignment: Alignment.bottomRight,
         children: [
@@ -26,14 +34,21 @@ class ProfileAvatar extends StatelessWidget {
             bottom: 4,
             right: 4,
             child: Container(
-              padding: EdgeInsets.all(6),
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.pinkAccent,
               ),
-              child: GestureDetector(
-                child: const Icon(Icons.edit, size: 18, color: Colors.white),
-              ),
+              child: loading
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation(Colors.white),
+                      ),
+                    )
+                  : const Icon(Icons.edit, size: 18, color: Colors.white),
             ),
           ),
         ],

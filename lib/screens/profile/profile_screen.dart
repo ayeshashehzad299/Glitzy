@@ -48,14 +48,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
               SizedBox(height: 20),
               ProfileAvatar(),
               SizedBox(height: 40),
-              ProfileTextfields(hintText: 'Name', controller: nameController),
-              ProfileTextfields(
-                hintText: 'UserName',
-                controller: userNameController,
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 30,
+                ),
+                child: ProfileTextfields(
+                  hintText: 'Name',
+                  controller: nameController,
+                ),
               ),
-              ProfileTextfields(
-                hintText: 'Write Your Bio',
-                controller: bioController,
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 30,
+                  vertical: 10,
+                ),
+                child: ProfileTextfields(
+                  hintText: 'UserName',
+                  controller: userNameController,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 30,
+                ),
+                child: ProfileTextfields(
+                  hintText: 'Write Your Bio',
+                  controller: bioController,
+                ),
               ),
             ],
           ),
