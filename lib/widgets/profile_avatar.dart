@@ -1,4 +1,3 @@
-// widgets/profile_avatar.dart
 import 'package:flutter/material.dart';
 
 class ProfileAvatar extends StatelessWidget {

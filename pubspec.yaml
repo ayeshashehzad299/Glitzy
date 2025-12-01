@@ -41,6 +41,9 @@ dependencies:
   google_sign_in: ^6.3.0
   supabase: ^2.10.0
   image_picker: ^1.2.1
+  supabase_flutter: ^2.5.7
+  typed_data: ^1.4.0
+  path: ^1.9.1
 
 dev_dependencies:
   flutter_test:
