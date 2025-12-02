@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:path/path.dart' as p; // for extension
+import 'dart:typed_data';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -16,25 +17,35 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  TextEditingController nameController = TextEditingController();
-  TextEditingController userNameController = TextEditingController();
-  TextEditingController bioController = TextEditingController();
+  final nameController = TextEditingController();
+  final userNameController = TextEditingController();
+  final bioController = TextEditingController();
 
   static const Color blushPink = Color(0xFFFFF4F7);
   static const Color hotPink = Color(0xFFFF69B4);
   static const Color darkText = Color(0xFF8E2A6C);
 
-  final _picker = ImagePicker();
+  final ImagePicker _picker = ImagePicker();
   bool _uploading = false;
   String? _imageUrl;
 
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
+  // make sure Supabase.initialize(...) is called in your app's entrypoint
   final supabase = Supabase.instance.client;
 
+  @override
   void initState() {
     super.initState();
-    _loadProfile;
+    _loadProfile(); // <- call it (not just reference)
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    userNameController.dispose();
+    bioController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadProfile() async {
@@ -45,9 +56,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (doc.exists) {
       final data = doc.data()!;
       setState(() {
-        _imageUrl = data['photoUrl'] as String?;
-        nameController.text = (data['displayName'] ?? '');
-        userNameController.text = (data['userName'] ?? '');
+        _imageUrl = (data['photoUrl'] as String?)?.isNotEmpty == true
+            ? data['photoUrl'] as String?
+            : null;
+        nameController.text = (data['displayName'] ?? '') as String;
+        userNameController.text = (data['userName'] ?? '') as String;
         bioController.text = (data['bio'] ?? '') as String;
       });
     }
@@ -58,51 +71,80 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (user == null) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Not Signed in')));
+      ).showSnackBar(const SnackBar(content: Text('Not signed in')));
       return;
     }
-    final Xfile? file = await _picker.pickImage(
+
+    // pick image
+    final XFile? file = await _picker.pickImage(
       source: ImageSource.gallery,
       maxHeight: 1200,
       maxWidth: 1200,
       imageQuality: 80,
     );
 
-    if (file == null) return; //user cancelled
+    if (file == null) return; // user cancelled
 
     setState(() => _uploading = true);
 
     try {
-      final bytes = await file.readAsBytes();
+      // read bytes
+      final Uint8List bytes = await file.readAsBytes();
 
+      // extension + filename
       final ext = p.extension(file.path);
       final fileName =
           'users/${user.uid}/avatar-${DateTime.now().millisecondsSinceEpoch}$ext';
 
+      // upload as binary to Supabase storage (bucket 'avatars')
       final res = await supabase.storage
           .from('avatars')
           .uploadBinary(
             fileName,
             bytes,
-            fileOptions: FileOptions(contentType: 'image/jpeg'),
+            fileOptions: const FileOptions(contentType: 'image/jpeg'),
           );
 
-      final publicRes = supabase.storage.from('avatars').getPublicUrl(fileName);
-      final publicUrl =
-          publicRes.data?.publicUrl ??
-          publicRes.publicUrl ??
-          publicRes['publicUrl'];
+      // get public url - handle possible response shapes using dynamic to avoid strict typing mismatch
+      final dynamic publicRes = supabase.storage
+          .from('avatars')
+          .getPublicUrl(fileName);
 
+      String? publicUrl;
+
+      // Different supabase client versions return different shapes. handle common ones:
+      try {
+        // vX: object with .publicUrl
+        publicUrl = (publicRes as dynamic).publicUrl as String?;
+      } catch (_) {
+        try {
+          // vY: object with data: { publicUrl: '...' }
+          publicUrl = (publicRes as dynamic).data?['publicUrl'] as String?;
+        } catch (_) {
+          // fallback: if it's already a String
+          if (publicRes is String) publicUrl = publicRes;
+        }
+      }
+
+      if (publicUrl == null || publicUrl.isEmpty) {
+        throw Exception(
+          'Could not determine public URL from Supabase response',
+        );
+      }
+
+      // Save public URL to Firestore (merge so we don't overwrite other fields)
       await _firestore.collection('users').doc(user.uid).set({
         'photoUrl': publicUrl,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
+
       setState(() {
         _imageUrl = publicUrl;
       });
+
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Profile photo updated')));
+      ).showSnackBar(const SnackBar(content: Text('Profile photo updated')));
     } catch (e, st) {
       debugPrint('Supabase upload error: $e\n$st');
       ScaffoldMessenger.of(
@@ -117,6 +159,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final user = _auth.currentUser;
     if (user == null) return;
     setState(() => _uploading = true);
+
+    try {
+      await _firestore.collection('users').doc(user.uid).set({
+        'displayName': nameController.text.trim(),
+        'userName': userNameController.text.trim(),
+        'bio': bioController.text.trim(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Profile saved')));
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to save: $e')));
+    } finally {
+      setState(() => _uploading = false);
+    }
   }
 
   @override
@@ -140,14 +200,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
         ),
+        actions: [
+          IconButton(
+            onPressed: _saveProfileFields,
+            icon: const Icon(Icons.save),
+            color: hotPink,
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Center(
           child: Column(
             children: [
-              SizedBox(height: 20),
-              ProfileAvatar(),
-              SizedBox(height: 40),
+              const SizedBox(height: 20),
+              // pass current image url and tap handler to avatar
+              ProfileAvatar(
+                imageUrl: _imageUrl,
+                size: 66,
+                onTap: _pickAndUploadImage,
+              ),
+              const SizedBox(height: 16),
+              const SizedBox(height: 40),
               Padding(
                 padding: const EdgeInsets.symmetric(
                   vertical: 10,
@@ -178,6 +251,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   controller: bioController,
                 ),
               ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _saveProfileFields,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: hotPink,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 12.0,
+                  ),
+                  child: Text('Save'),
+                ),
+              ),
+              const SizedBox(height: 40),
             ],
           ),
         ),
