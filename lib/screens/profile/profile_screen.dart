@@ -1,3 +1,4 @@
+import 'package:chatt_app/widgets/auth_primary_button.dart';
 import 'package:chatt_app/widgets/profile_avatar.dart';
 import 'package:chatt_app/widgets/profile_textfields.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -269,6 +270,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               const SizedBox(height: 40),
+              AuthPrimaryButton(label: 'Save', onTap:),
             ],
           ),
         ),
