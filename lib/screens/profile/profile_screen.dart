@@ -32,13 +32,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
-  // make sure Supabase.initialize(...) is called in your app's entrypoint
+
   final supabase = Supabase.instance.client;
 
   @override
   void initState() {
     super.initState();
-    _loadProfile(); // <- call it (not just reference)
+    _loadProfile();
   }
 
   @override
@@ -76,7 +76,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return;
     }
 
-    // pick image
     final XFile? file = await _picker.pickImage(
       source: ImageSource.gallery,
       maxHeight: 1200,
@@ -84,20 +83,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       imageQuality: 80,
     );
 
-    if (file == null) return; // user cancelled
+    if (file == null) return;
 
     setState(() => _uploading = true);
 
     try {
-      // read bytes
       final Uint8List bytes = await file.readAsBytes();
-
-      // extension + filename
       final ext = p.extension(file.path);
       final fileName =
           'users/${user.uid}/avatar-${DateTime.now().millisecondsSinceEpoch}$ext';
-
-      // upload as binary to Supabase storage (bucket 'avatars')
       final res = await supabase.storage
           .from('avatars')
           .uploadBinary(
@@ -105,24 +99,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
             bytes,
             fileOptions: const FileOptions(contentType: 'image/jpeg'),
           );
-
-      // get public url - handle possible response shapes using dynamic to avoid strict typing mismatch
       final dynamic publicRes = supabase.storage
           .from('avatars')
           .getPublicUrl(fileName);
 
       String? publicUrl;
 
-      // Different supabase client versions return different shapes. handle common ones:
       try {
-        // vX: object with .publicUrl
         publicUrl = (publicRes as dynamic).publicUrl as String?;
       } catch (_) {
         try {
-          // vY: object with data: { publicUrl: '...' }
           publicUrl = (publicRes as dynamic).data?['publicUrl'] as String?;
         } catch (_) {
-          // fallback: if it's already a String
           if (publicRes is String) publicUrl = publicRes;
         }
       }
@@ -133,7 +121,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
       }
 
-      // Save public URL to Firestore (merge so we don't overwrite other fields)
       await _firestore.collection('users').doc(user.uid).set({
         'photoUrl': publicUrl,
         'updatedAt': FieldValue.serverTimestamp(),
@@ -214,7 +201,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             children: [
               const SizedBox(height: 20),
-              // pass current image url and tap handler to avatar
               ProfileAvatar(
                 imageUrl: _imageUrl,
                 size: 66,

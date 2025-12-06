@@ -60,7 +60,7 @@ class _AuthTextFieldState extends State<AuthTextField>
       duration: const Duration(milliseconds: 180),
     );
     _errorSlideAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
-    if (widget.autovalidate) _validate(); // initial validate if needed
+    if (widget.autovalidate) _validate();
   }
 
   @override
@@ -73,10 +73,7 @@ class _AuthTextFieldState extends State<AuthTextField>
   }
 
   void _onFocusChange() {
-    setState(() {
-      // re-build to animate border color
-    });
-    // validate when focus is lost (so user sees errors after leaving field)
+    setState(() {});
     if (!_focusNode.hasFocus) _validate();
   }
 
@@ -84,7 +81,6 @@ class _AuthTextFieldState extends State<AuthTextField>
     if (widget.autovalidate) {
       _validate();
     } else {
-      // Clear error while typing so user knows they're fixing it
       if (_hasError) {
         setState(() => _errorText = null);
         _animCtrl.reverse();
@@ -167,9 +163,8 @@ class _AuthTextFieldState extends State<AuthTextField>
                     fontSize: 15,
                   ),
                   onEditingComplete: () {
-                    // run validate when user finishes editing
                     _validate();
-                    // move focus to next if any
+
                     _focusNode.unfocus();
                   },
                 ),
@@ -178,7 +173,6 @@ class _AuthTextFieldState extends State<AuthTextField>
           ),
         ),
 
-        // Animated error text
         SizeTransition(
           sizeFactor: _errorSlideAnim,
           axisAlignment: -1.0,
