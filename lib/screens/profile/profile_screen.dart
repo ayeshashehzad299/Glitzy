@@ -1,4 +1,5 @@
 import 'package:chatt_app/widgets/auth_primary_button.dart';
+import 'package:chatt_app/widgets/custom_button.dart';
 import 'package:chatt_app/widgets/profile_avatar.dart';
 import 'package:chatt_app/widgets/profile_textfields.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -188,13 +189,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
         ),
-        actions: [
-          IconButton(
-            onPressed: _saveProfileFields,
-            icon: const Icon(Icons.save),
-            color: hotPink,
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Center(
@@ -239,24 +233,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _saveProfileFields,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: hotPink,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
-                  ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 30,
+                  vertical: 10,
                 ),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 24.0,
-                    vertical: 12.0,
-                  ),
-                  child: Text('Save'),
-                ),
+                child: CustomButton(label: 'Save', onTap: _saveProfileFields),
               ),
-              const SizedBox(height: 40),
-              AuthPrimaryButton(label: 'Save', onTap: _saveProfileFields),
             ],
           ),
         ),
