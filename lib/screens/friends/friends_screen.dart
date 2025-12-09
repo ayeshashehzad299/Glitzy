@@ -1,3 +1,4 @@
+import 'package:chatt_app/widgets/invite_friends.dart';
 import 'package:chatt_app/widgets/search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -82,6 +83,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                 // search logic
               },
             ),
+            InviteFriendsButton(label: 'Invite Your Friend'),
           ],
         ),
       ),
