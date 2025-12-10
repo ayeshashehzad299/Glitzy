@@ -83,7 +83,10 @@ class _FriendsScreenState extends State<FriendsScreen> {
                 // search logic
               },
             ),
-            InviteFriendsButton(label: 'Invite Your Friend'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+              child: InviteFriendsButton(label: 'Invite Your Friend'),
+            ),
           ],
         ),
       ),
