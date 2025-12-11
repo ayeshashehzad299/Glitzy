@@ -1,5 +1,6 @@
 import 'package:chatt_app/screens/auth/signup_screen.dart';
 import 'package:chatt_app/screens/home/home_screen.dart';
+import 'package:chatt_app/screens/navbar/bottom_navbar_screen.dart';
 import 'package:chatt_app/widgets/auth_button.dart';
 import 'package:chatt_app/widgets/auth_label.dart';
 import 'package:chatt_app/widgets/auth_primary_button.dart';
@@ -44,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => HomeScreen()),
+        MaterialPageRoute(builder: (_) => BottomNavbarScreen()),
       );
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(

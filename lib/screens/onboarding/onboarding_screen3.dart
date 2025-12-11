@@ -19,76 +19,83 @@ class _OnboardingScreen3State extends State<OnboardingScreen3> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: blushPink,
-      body: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 55),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'assets/images/onboarding-3.png',
-                  height: 350,
-                  width: 350,
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'The Best Conversations',
-                  style: GoogleFonts.chilanka(
-                    color: hotPink,
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
+      body: SingleChildScrollView(
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20.0,
+                vertical: 55,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'assets/images/onboarding-3.png',
+                    height: 350,
+                    width: 350,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 35),
-                Text(
-                  'Your friends are always a \ntap away. Chat whenever \nthe mood strikes.',
-                  style: GoogleFonts.quicksand(color: darkText, fontSize: 21),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 40),
-                CustomNavigationButton(
-                  text: 'Start Sparkling',
-                  destination: SignupScreen(),
-                ),
-                SizedBox(height: 30),
-                RichText(
-                  text: TextSpan(
-                    style: TextStyle(color: Colors.black, fontSize: 16),
-                    children: [
-                      TextSpan(
-                        text: "Already have an account? ",
-                        style: GoogleFonts.chilanka(
-                          color: hotPink,
-                          fontSize: 16,
+                  SizedBox(height: 10),
+                  Text(
+                    'The Best Conversations',
+                    style: GoogleFonts.chilanka(
+                      color: hotPink,
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 35),
+                  Text(
+                    'Your friends are always a \ntap away. Chat whenever \nthe mood strikes.',
+                    style: GoogleFonts.quicksand(color: darkText, fontSize: 21),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 40),
+                  CustomNavigationButton(
+                    text: 'Start Sparkling',
+                    destination: SignupScreen(),
+                  ),
+                  SizedBox(height: 30),
+                  RichText(
+                    text: TextSpan(
+                      style: TextStyle(color: Colors.black, fontSize: 16),
+                      children: [
+                        TextSpan(
+                          text: "Already have an account? ",
+                          style: GoogleFonts.chilanka(
+                            color: hotPink,
+                            fontSize: 16,
+                          ),
                         ),
-                      ),
-                      WidgetSpan(
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (_) => LoginScreen()),
-                            );
-                          },
-                          child: Text(
-                            "Log in",
-                            style: GoogleFonts.chilanka(
-                              color: Colors.pink,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
+                        WidgetSpan(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => LoginScreen(),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              "Log in",
+                              style: GoogleFonts.chilanka(
+                                color: Colors.pink,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
