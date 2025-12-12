@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:chatt_app/widgets/auth_primary_button.dart';
 import 'package:chatt_app/widgets/custom_button.dart';
 import 'package:chatt_app/widgets/profile_avatar.dart';
@@ -9,7 +10,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:path/path.dart' as p; // for extension
-import 'dart:typed_data';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -34,12 +34,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
 
+  // Make sure Supabase.instance has been initialized in main before using this
   final supabase = Supabase.instance.client;
 
   @override
   void initState() {
     super.initState();
-    _loadProfile();
+    _loadProfile(); // actually call the loader
   }
 
   @override
@@ -58,9 +59,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (doc.exists) {
       final data = doc.data()!;
       setState(() {
-        _imageUrl = (data['photoUrl'] as String?)?.isNotEmpty == true
-            ? data['photoUrl'] as String?
-            : null;
+        final photo = data['photoUrl'];
+        _imageUrl = (photo is String && photo.isNotEmpty) ? photo : null;
         nameController.text = (data['displayName'] ?? '') as String;
         userNameController.text = (data['userName'] ?? '') as String;
         bioController.text = (data['bio'] ?? '') as String;
@@ -83,53 +83,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
       maxWidth: 1200,
       imageQuality: 80,
     );
-
     if (file == null) return;
 
     setState(() => _uploading = true);
 
     try {
       final Uint8List bytes = await file.readAsBytes();
-      final ext = p.extension(file.path);
+      final ext = p.extension(file.path); // ".png" or ".jpg"
       final fileName =
           'users/${user.uid}/avatar-${DateTime.now().millisecondsSinceEpoch}$ext';
+
+      // Upload binary to Supabase storage
       final res = await supabase.storage
           .from('avatars')
           .uploadBinary(
             fileName,
             bytes,
-            fileOptions: const FileOptions(contentType: 'image/jpeg'),
+            fileOptions: FileOptions(
+              contentType: 'image/${ext.replaceFirst('.', '')}',
+            ),
           );
-      final dynamic publicRes = supabase.storage
-          .from('avatars')
-          .getPublicUrl(fileName);
 
-      String? publicUrl;
-
-      try {
-        publicUrl = (publicRes as dynamic).publicUrl as String?;
-      } catch (_) {
-        try {
-          publicUrl = (publicRes as dynamic).data?['publicUrl'] as String?;
-        } catch (_) {
-          if (publicRes is String) publicUrl = publicRes;
-        }
+      // Some SDK versions return a String, some return an object with a .publicUrl.
+      // Handle both possibilities:
+      final publicRes = supabase.storage.from('avatars').getPublicUrl(fileName);
+      // publicRes may be a String or an object depending on SDK
+      String publicUrl;
+      if (publicRes is String) {
+        publicUrl = publicRes;
+      } else {
+        // try the common shape; fallback to toString()
+        publicUrl =
+            (publicRes as dynamic).publicUrl?.toString() ??
+            publicRes.toString();
       }
 
-      if (publicUrl == null || publicUrl.isEmpty) {
-        throw Exception(
-          'Could not determine public URL from Supabase response',
-        );
-      }
-
+      // save to firestore
       await _firestore.collection('users').doc(user.uid).set({
         'photoUrl': publicUrl,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
-      setState(() {
-        _imageUrl = publicUrl;
-      });
+      setState(() => _imageUrl = publicUrl);
 
       ScaffoldMessenger.of(
         context,
