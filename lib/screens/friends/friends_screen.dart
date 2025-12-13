@@ -1,3 +1,4 @@
+import 'package:chatt_app/widgets/friends_tile.dart';
 import 'package:chatt_app/widgets/invite_friends.dart';
 import 'package:chatt_app/widgets/search_bar.dart';
 import 'package:flutter/material.dart';
@@ -86,6 +87,40 @@ class _FriendsScreenState extends State<FriendsScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
               child: InviteFriendsButton(label: 'Invite Your Friend'),
+            ),
+            Expanded(
+              child: ListView(
+                children: [
+                  FriendTile(
+                    name: 'john',
+                    status: 'Online',
+                    avatarColor: Colors.blue[200]!,
+                    actionIcon: Icons.send,
+                    onActionTap: () {},
+                  ),
+                  FriendTile(
+                    name: 'john',
+                    status: 'Online',
+                    avatarColor: Colors.blue[200]!,
+                    actionIcon: Icons.send,
+                    onActionTap: () {},
+                  ),
+                  FriendTile(
+                    name: 'nova',
+                    status: 'Busy',
+                    avatarColor: Colors.yellow[200]!,
+                    actionIcon: Icons.send,
+                    onActionTap: () {},
+                  ),
+                  FriendTile(
+                    name: 'jack',
+                    status: 'Online',
+                    avatarColor: Colors.green[200]!,
+                    actionIcon: Icons.send,
+                    onActionTap: () {},
+                  ),
+                ],
+              ),
             ),
           ],
         ),
