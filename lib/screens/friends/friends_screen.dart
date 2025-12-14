@@ -93,28 +93,28 @@ class _FriendsScreenState extends State<FriendsScreen> {
                 children: [
                   FriendTile(
                     name: 'john',
-                    status: 'Online',
+                    bio: 'Online',
                     avatarColor: Colors.blue[200]!,
                     actionIcon: Icons.send,
                     onActionTap: () {},
                   ),
                   FriendTile(
                     name: 'john',
-                    status: 'Online',
+                    bio: 'Online',
                     avatarColor: Colors.blue[200]!,
                     actionIcon: Icons.send,
                     onActionTap: () {},
                   ),
                   FriendTile(
                     name: 'nova',
-                    status: 'Busy',
+                    bio: 'Busy',
                     avatarColor: Colors.yellow[200]!,
                     actionIcon: Icons.send,
                     onActionTap: () {},
                   ),
                   FriendTile(
                     name: 'jack',
-                    status: 'Online',
+                    bio: 'Online',
                     avatarColor: Colors.green[200]!,
                     actionIcon: Icons.send,
                     onActionTap: () {},

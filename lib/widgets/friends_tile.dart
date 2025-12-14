@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 class FriendTile extends StatelessWidget {
   final String name;
-  final String status;
+  final String bio;
   final Color avatarColor;
   final VoidCallback onActionTap;
   final IconData actionIcon;
@@ -11,7 +11,7 @@ class FriendTile extends StatelessWidget {
   const FriendTile({
     super.key,
     required this.name,
-    required this.status,
+    required this.bio,
     required this.avatarColor,
     required this.onActionTap,
     required this.actionIcon,
@@ -49,7 +49,7 @@ class FriendTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    status,
+                    bio,
                     style: GoogleFonts.quicksand(
                       fontSize: 12,
                       color: Colors.grey,
