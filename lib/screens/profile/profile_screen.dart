@@ -34,7 +34,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
 
-  // Make sure Supabase.instance has been initialized in main before using this
   final supabase = Supabase.instance.client;
 
   @override
@@ -93,7 +92,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final fileName =
           'users/${user.uid}/avatar-${DateTime.now().millisecondsSinceEpoch}$ext';
 
-      // Upload binary to Supabase storage
       final res = await supabase.storage
           .from('avatars')
           .uploadBinary(
@@ -104,21 +102,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           );
 
-      // Some SDK versions return a String, some return an object with a .publicUrl.
-      // Handle both possibilities:
       final publicRes = supabase.storage.from('avatars').getPublicUrl(fileName);
-      // publicRes may be a String or an object depending on SDK
+
       String publicUrl;
       if (publicRes is String) {
         publicUrl = publicRes;
       } else {
-        // try the common shape; fallback to toString()
         publicUrl =
             (publicRes as dynamic).publicUrl?.toString() ??
             publicRes.toString();
       }
 
-      // save to firestore
       await _firestore.collection('users').doc(user.uid).set({
         'photoUrl': publicUrl,
         'updatedAt': FieldValue.serverTimestamp(),
