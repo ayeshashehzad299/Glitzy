@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-import 'package:chatt_app/widgets/auth_primary_button.dart';
 import 'package:chatt_app/widgets/custom_button.dart';
 import 'package:chatt_app/widgets/profile_avatar.dart';
 import 'package:chatt_app/widgets/profile_textfields.dart';
