@@ -1,6 +1,8 @@
 import 'package:chatt_app/widgets/friends_tile.dart';
 import 'package:chatt_app/widgets/invite_friends.dart';
 import 'package:chatt_app/widgets/search_bar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,22 +21,12 @@ class _FriendsScreenState extends State<FriendsScreen> {
   static const Color hotPink = Color(0xFFFF69B4);
   static const Color darkText = Color(0xFF8E2A6C);
 
-  final List<Map<String, String>> _allFriends = [
-    {'username': 'Ayesha', 'email': 'ayesha@example.com'},
-    {'username': 'Muneeb', 'email': 'muneeb@example.com'},
-    {'username': 'Dua', 'email': 'dua@example.com'},
-  ];
+  final user = FirebaseAuth.instance.currentUser;
 
   String _query = '';
 
   @override
   Widget build(BuildContext context) {
-    final filtered = _allFriends.where((f) {
-      final q = _query.toLowerCase();
-      return f['username']!.toLowerCase().contains(q) ||
-          f['email']!.toLowerCase().contains(q);
-    }).toList();
-
     return Scaffold(
       backgroundColor: blushPink,
       appBar: AppBar(
@@ -81,45 +73,56 @@ class _FriendsScreenState extends State<FriendsScreen> {
               controller: searchController,
               hint: "Search Friends",
               onChanged: (value) {
-                // search logic
+                setState(() {
+                  _query = value.toLowerCase();
+                });
               },
             ),
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
               child: InviteFriendsButton(label: 'Invite Your Friend'),
             ),
             Expanded(
-              child: ListView(
-                children: [
-                  FriendTile(
-                    name: 'john',
-                    bio: 'Online',
-                    avatarColor: Colors.blue[200]!,
-                    actionIcon: Icons.send,
-                    onActionTap: () {},
-                  ),
-                  FriendTile(
-                    name: 'john',
-                    bio: 'Online',
-                    avatarColor: Colors.blue[200]!,
-                    actionIcon: Icons.send,
-                    onActionTap: () {},
-                  ),
-                  FriendTile(
-                    name: 'nova',
-                    bio: 'Busy',
-                    avatarColor: Colors.yellow[200]!,
-                    actionIcon: Icons.send,
-                    onActionTap: () {},
-                  ),
-                  FriendTile(
-                    name: 'jack',
-                    bio: 'Online',
-                    avatarColor: Colors.green[200]!,
-                    actionIcon: Icons.send,
-                    onActionTap: () {},
-                  ),
-                ],
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(user!.uid)
+                    .collection('friends')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(child: Text('No friends yet'));
+                  }
+
+                  final friends = snapshot.data!.docs.where((doc) {
+                    final data = doc.data() as Map<String, dynamic>;
+                    final name = (data['displayName'] ?? '').toLowerCase();
+                    final bio = (data['bio'] ?? '').toLowerCase();
+
+                    return name.contains(_query) || bio.contains(_query);
+                  }).toList();
+
+                  return ListView.builder(
+                    itemCount: friends.length,
+                    itemBuilder: (context, index) {
+                      final data =
+                          friends[index].data() as Map<String, dynamic>;
+
+                      return FriendTile(
+                        name: data['displayName'] ?? '',
+                        bio: data['bio'] ?? '',
+                        avatarColor: Colors.pink[200]!,
+                        actionIcon: Icons.send,
+                        onActionTap: () {},
+                      );
+                    },
+                  );
+                },
               ),
             ),
           ],
