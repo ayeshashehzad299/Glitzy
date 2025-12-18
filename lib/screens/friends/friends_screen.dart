@@ -1,3 +1,4 @@
+import 'package:chatt_app/screens/friends/add_friends_screen.dart';
 import 'package:chatt_app/widgets/friends_tile.dart';
 import 'package:chatt_app/widgets/invite_friends.dart';
 import 'package:chatt_app/widgets/search_bar.dart';
@@ -19,7 +20,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
 
   static const Color blushPink = Color(0xFFFFF4F7);
   static const Color hotPink = Color(0xFFFF69B4);
-  static const Color darkText = Color(0xFF8E2A6C);
 
   final user = FirebaseAuth.instance.currentUser;
 
@@ -81,7 +81,15 @@ class _FriendsScreenState extends State<FriendsScreen> {
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-              child: InviteFriendsButton(label: 'Invite Your Friend'),
+              child: InviteFriendsButton(
+                label: 'Invite Your Friend',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => AddFriendsScreen()),
+                  );
+                },
+              ),
             ),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
