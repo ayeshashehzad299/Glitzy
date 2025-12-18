@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:chatt_app/widgets/friends_tile.dart';
 import 'package:chatt_app/widgets/search_bar.dart';
@@ -17,20 +19,40 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
   final TextEditingController searchController = TextEditingController();
   String _query = '';
 
-  // TEMP dummy users (replace with Firestore later)
-  final List<Map<String, String>> users = [
-    {'name': 'Ayesha', 'bio': 'Flutter dev ✨'},
-    {'name': 'Muneeb', 'bio': 'Coffee + Code ☕'},
-    {'name': 'Dua', 'bio': 'UI Lover 💖'},
-  ];
+  final currentUser = FirebaseAuth.instance.currentUser;
+
+  /// Send friend request
+  Future<void> sendFriendRequest(String toUid) async {
+    final fromUid = currentUser!.uid;
+
+    // prevent duplicate requests
+    final existing = await FirebaseFirestore.instance
+        .collection('friend_requests')
+        .where('fromUid', isEqualTo: fromUid)
+        .where('toUid', isEqualTo: toUid)
+        .get();
+
+    if (existing.docs.isNotEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Request already sent')));
+      return;
+    }
+
+    await FirebaseFirestore.instance.collection('friend_requests').add({
+      'fromUid': fromUid,
+      'toUid': toUid,
+      'status': 'pending',
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Friend request sent')));
+  }
 
   @override
   Widget build(BuildContext context) {
-    final filteredUsers = users.where((u) {
-      return u['name']!.toLowerCase().contains(_query) ||
-          u['bio']!.toLowerCase().contains(_query);
-    }).toList();
-
     return Scaffold(
       backgroundColor: blushPink,
       appBar: AppBar(
@@ -49,7 +71,7 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
         children: [
           GlitzySearchBar(
             controller: searchController,
-            hint: 'Search by name or email',
+            hint: 'Search users',
             onChanged: (value) {
               setState(() => _query = value.toLowerCase());
             },
@@ -57,24 +79,49 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
 
           const SizedBox(height: 12),
 
+          /// USERS LIST
           Expanded(
-            child: filteredUsers.isEmpty
-                ? const Center(child: Text('No users found'))
-                : ListView.builder(
-                    itemCount: filteredUsers.length,
-                    itemBuilder: (context, index) {
-                      final user = filteredUsers[index];
-                      return FriendTile(
-                        name: user['name']!,
-                        bio: user['bio']!,
-                        avatarColor: Colors.pink[200]!,
-                        actionIcon: Icons.person_add,
-                        onActionTap: () {
-                          // later → send friend request
-                        },
-                      );
-                    },
-                  ),
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('users')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final users = snapshot.data!.docs.where((doc) {
+                  final data = doc.data() as Map<String, dynamic>;
+                  final name = (data['displayName'] ?? '').toLowerCase();
+                  final email = (data['email'] ?? '').toLowerCase();
+
+                  // exclude yourself
+                  if (doc.id == currentUser!.uid) return false;
+
+                  return name.contains(_query) || email.contains(_query);
+                }).toList();
+
+                if (users.isEmpty) {
+                  return const Center(child: Text('No users found'));
+                }
+
+                return ListView.builder(
+                  itemCount: users.length,
+                  itemBuilder: (context, index) {
+                    final data = users[index].data() as Map<String, dynamic>;
+                    final uid = users[index].id;
+
+                    return FriendTile(
+                      name: data['displayName'] ?? '',
+                      bio: data['bio'] ?? '',
+                      avatarColor: Colors.pink[200]!,
+                      actionIcon: Icons.person_add,
+                      onActionTap: () => sendFriendRequest(uid),
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),
