@@ -1,3 +1,4 @@
+import 'package:chatt_app/screens/friends/add_a_friend_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -122,6 +123,16 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
                 );
               },
             ),
+          ),
+          FloatingActionButton(
+            backgroundColor: hotPink,
+            child: const Icon(Icons.person_add),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AddAFriendScreen()),
+              );
+            },
           ),
         ],
       ),
