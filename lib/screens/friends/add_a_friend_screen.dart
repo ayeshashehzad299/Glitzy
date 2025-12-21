@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 class AddAFriendScreen extends StatefulWidget {
@@ -113,21 +116,88 @@ class _AddAFriendScreenState extends State<AddAFriendScreen> {
                     : () async {
                         if (!_formKey.currentState!.validate()) return;
 
+                        final String email = emailController.text.trim();
+                        final auth = FirebaseAuth.instance;
+                        final firestore = FirebaseFirestore.instance;
+                        final currentUser = auth.currentUser;
+
+                        if (currentUser == null) return;
+
                         setState(() => _sending = true);
 
-                        await Future.delayed(const Duration(seconds: 1));
+                        try {
+                          // 1️⃣ Find user by email
+                          final query = await firestore
+                              .collection('users')
+                              .where('email', isEqualTo: email)
+                              .limit(1)
+                              .get();
+
+                          if (query.docs.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("User not found")),
+                            );
+                            setState(() => _sending = false);
+                            return;
+                          }
+
+                          final receiver = query.docs.first;
+                          final receiverId = receiver.id;
+
+                          // 2️⃣ Prevent sending request to self
+                          if (receiverId == currentUser.uid) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "You cannot send request to yourself",
+                                ),
+                              ),
+                            );
+                            setState(() => _sending = false);
+                            return;
+                          }
+
+                          // 3️⃣ Check duplicate friend request
+                          final existing = await firestore
+                              .collection("friend_requests")
+                              .where("senderId", isEqualTo: currentUser.uid)
+                              .where("receiverId", isEqualTo: receiverId)
+                              .where("status", isEqualTo: "pending")
+                              .get();
+
+                          if (existing.docs.isNotEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Friend request already sent"),
+                              ),
+                            );
+                            setState(() => _sending = false);
+                            return;
+                          }
+
+                          // 4️⃣ Create request document
+                          await firestore.collection("friend_requests").add({
+                            "senderId": currentUser.uid,
+                            "receiverId": receiverId,
+                            "receiverEmail": email,
+                            "status": "pending",
+                            "createdAt": FieldValue.serverTimestamp(),
+                          });
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Friend request sent to $email"),
+                            ),
+                          );
+
+                          emailController.clear();
+                        } catch (e) {
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(SnackBar(content: Text("Error: $e")));
+                        }
 
                         setState(() => _sending = false);
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              "Friend request sent to ${emailController.text}",
-                            ),
-                          ),
-                        );
-
-                        emailController.clear();
                       },
 
                 child: _sending
