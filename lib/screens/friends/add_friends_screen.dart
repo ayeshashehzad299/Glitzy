@@ -56,6 +56,7 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: blushPink,
+
       appBar: AppBar(
         backgroundColor: blushPink,
         elevation: 0,
@@ -67,6 +68,16 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: hotPink,
+        child: const Icon(Icons.person_add, color: Colors.white),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AddAFriendScreen()),
+          );
+        },
       ),
       body: Column(
         children: [
@@ -123,16 +134,6 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
                 );
               },
             ),
-          ),
-          FloatingActionButton(
-            backgroundColor: hotPink,
-            child: const Icon(Icons.person_add),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const AddAFriendScreen()),
-              );
-            },
           ),
         ],
       ),
