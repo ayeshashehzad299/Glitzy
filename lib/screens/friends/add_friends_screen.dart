@@ -60,6 +60,9 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
       appBar: AppBar(
         backgroundColor: blushPink,
         elevation: 0,
+        centerTitle: false,
+        toolbarHeight: 80,
+        titleSpacing: 10,
         title: Text(
           'Add Friends',
           style: GoogleFonts.chilanka(

@@ -27,6 +27,9 @@ class _AddAFriendScreenState extends State<AddAFriendScreen> {
       appBar: AppBar(
         backgroundColor: blushPink,
         elevation: 0,
+        centerTitle: false,
+        toolbarHeight: 80,
+        titleSpacing: 30,
         title: Text(
           "Add a Friend",
           style: GoogleFonts.chilanka(
@@ -35,20 +38,20 @@ class _AddAFriendScreenState extends State<AddAFriendScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        centerTitle: false,
       ),
 
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 22),
+        padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 10),
 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              "Enter your friend's email 👇",
-              style: GoogleFonts.quicksand(
-                color: Colors.pink[700],
-                fontSize: 17,
+              "Enter your Friend's Email 👇",
+              style: GoogleFonts.chilanka(
+                color: hotPink,
+                fontSize: 22,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -207,6 +210,7 @@ class _AddAFriendScreenState extends State<AddAFriendScreen> {
                         style: GoogleFonts.quicksand(
                           fontSize: 17,
                           fontWeight: FontWeight.w700,
+                          color: Colors.white,
                         ),
                       ),
               ),

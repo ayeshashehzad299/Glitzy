@@ -27,7 +27,9 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
       appBar: AppBar(
         backgroundColor: blushPink,
         elevation: 0,
-        titleSpacing: 30,
+        centerTitle: false,
+        toolbarHeight: 80,
+        titleSpacing: 10,
         title: Text(
           "Friend Requests",
           style: GoogleFonts.chilanka(
