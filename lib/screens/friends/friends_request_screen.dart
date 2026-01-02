@@ -12,18 +12,34 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
   static const Color blushPink = Color(0xFFFFF4F7);
   static const Color hotPink = Color(0xFFFF69B4);
 
-  // TEMP dummy list (will connect to Firestore later)
-  final List<Map<String, String>> requests = [
+  List<Map<String, String>> requests = [
     {"name": "Ayesha", "bio": "Flutter Dev 💖"},
     {"name": "Harry", "bio": "Coffee Lover ☕"},
     {"name": "Dua", "bio": "UI Queen 👑"},
   ];
 
+  void acceptRequest(int index) {
+    final user = requests[index]["name"];
+    setState(() => requests.removeAt(index));
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("You are now friends with $user 🎉")),
+    );
+  }
+
+  void rejectRequest(int index) {
+    final user = requests[index]["name"];
+    setState(() => requests.removeAt(index));
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("You rejected $user’s request ❌")));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: blushPink,
-
       appBar: AppBar(
         backgroundColor: blushPink,
         elevation: 0,
@@ -42,6 +58,7 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
 
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+
         child: requests.isEmpty
             ? Center(
                 child: Text(
@@ -71,7 +88,7 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
                         CircleAvatar(
                           radius: 26,
                           backgroundColor: Colors.pink[200],
-                          child: Icon(
+                          child: const Icon(
                             Icons.person,
                             color: Colors.white,
                             size: 30,
@@ -107,7 +124,7 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
                         Row(
                           children: [
                             IconButton(
-                              onPressed: () {},
+                              onPressed: () => rejectRequest(index),
                               icon: Icon(
                                 Icons.close,
                                 color: Colors.pink[400],
@@ -115,7 +132,7 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
                               ),
                             ),
                             IconButton(
-                              onPressed: () {},
+                              onPressed: () => acceptRequest(index),
                               icon: Icon(
                                 Icons.check_circle,
                                 color: Colors.pinkAccent,
